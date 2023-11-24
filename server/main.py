@@ -6,7 +6,7 @@ from gui import GUI, CustomStyle
 
 def onShutdown():
     gui.current_item.send_message("shutdown")
-    print(gui.current_item.details["name"])
+    gui.current_item.disconnect()
     pass
 
 root = tk.Tk()

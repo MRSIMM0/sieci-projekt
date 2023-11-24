@@ -1,6 +1,8 @@
 import tkinter as tk
 import tkinter.ttk as ttk
 import customtkinter as ctk
+from tkinter import messagebox
+
 
 class CustomStyle:
     def __init__(self):
@@ -20,20 +22,50 @@ class CustomStyle:
         self.style.configure('Custom.CTkButton', fg_color='red', corner_radius=10)
 
 class GUI:
-    clients = {}
-    current_item = None
-    items = {}
-
     def __init__(self, root, on_shutdown):
         self.root = root
         self.on_shutdown = on_shutdown
         self.configure_root()
         self.create_widgets()
+        self.clients = {}
+        self.items = {}
+        self.current_item = None
 
     def configure_root(self):
         self.root.configure(background='grey')
         self.root.geometry("800x480")
         self.root.title("Server")
+
+    def shutdown(self):
+        confirm = messagebox.askyesno("Confirmation", "Are you sure you want to shutdown this system?")
+        if confirm:
+            self.on_shutdown()
+
+    def right_frame(self):
+        self.right_frame = tk.Frame(self.main_frame)
+        self.right_frame.grid(row=0, column=1, sticky='nsew')
+
+        self.details_label = tk.Label(master=self.right_frame, text="", font=("Helvetica", 14, "bold"), padx=10, pady=10)
+        self.details_label.pack()
+
+        self.system_label = tk.Label(master=self.right_frame, text="", font=("Helvetica", 14, "bold"), padx=10, pady=10)
+        self.system_label.pack()
+
+        self.cpu_label = tk.Label(master=self.right_frame, text="", font=("Helvetica", 14, "bold"), padx=10, pady=10)
+        self.cpu_label.pack()
+
+        self.ram_label = tk.Label(master=self.right_frame, text="", font=("Helvetica", 14, "bold"), padx=10, pady=10)
+        self.ram_label.pack()
+
+        self.disk_label = tk.Label(master=self.right_frame, text="", font=("Helvetica", 14, "bold"), padx=10, pady=10)
+        self.disk_label.pack()
+
+        self.button = ctk.CTkButton(master=self.right_frame, text="Shutdown",command=self.shutdown, fg_color='red', hover_color='red3', corner_radius=10)
+        self.button.pack(side='bottom', pady=10)
+
+        self.update_tree_indicator()
+        self.right_frame.grid_remove()
+        pass
 
     def create_widgets(self):
         self.main_frame = tk.Frame(self.root, width=800, height=480)
@@ -49,17 +81,8 @@ class GUI:
         self.tree_indicator_label = tk.Label(self.main_frame, text="")
         self.tree_indicator_label.grid(row=1, column=0, sticky='w')
 
-        self.right_frame = tk.Frame(self.main_frame)
-        self.right_frame.grid(row=0, column=1, sticky='nsew')
+        self.right_frame()
 
-        self.button = ctk.CTkButton(master=self.right_frame, text="Shutdown",command=self.on_shutdown, fg_color='red', hover_color='red3', corner_radius=10)
-        self.button.pack(side='bottom', pady=10)
-
-        self.details_label = tk.Label(master=self.right_frame, text="")
-        self.details_label.pack()
-
-        self.update_tree_indicator()
-        self.right_frame.grid_remove()
         self.main_frame.grid_columnconfigure(1, weight=0)
 
         self.main_frame.grid_columnconfigure(0, weight=3)
@@ -72,30 +95,44 @@ class GUI:
             self.tree_indicator_label.config(text="")
 
     def add_client(self, client):
-        item = self.tree.insert('', 'end', values=(client.details['name'],))
-        self.clients[client] = item
-        self.items[item] = client
-        if len(self.clients) % 2 == 0:
-            self.tree.item(item, tags='even')
+        item = self.clients.get(client.client_address)
+        if item is not None:
+            self.tree.item(item, values=(client.details['name'],))
+            self.update_details()
         else:
-            self.tree.item(item, tags='odd')
+            item = self.tree.insert('', 'end', values=(client.details['name'],))
+            self.clients[client.client_address] = item
+            self.items[item] = client
+            if len(self.clients) % 2 == 0:
+                self.tree.item(item, tags='even')
+            else:
+                self.tree.item(item, tags='odd')
+            self.tree.tag_configure('even', background='gray47')
+            self.tree.tag_configure('odd', background='gray55')
         self.update_tree_indicator()
-        self.tree.tag_configure('even', background='gray47')
-        self.tree.tag_configure('odd', background='gray55')
+
 
     def remove_client(self, client):
-        item = self.clients.get(client)
+        item = self.clients.get(client.client_address)
         if item is not None and item != '':
             self.tree.delete(item)
-            del self.clients[client]
+            del self.clients[client.client_address]
             self.update_tree_indicator()
+
+    def update_details(self):
+        current_item = self.current_item
+        self.system_label.config(text=f"System: {current_item.details['osName']}")
+        self.details_label.config(text=f"Device Name: {current_item.details['name']}")
+        self.cpu_label.config(text=f"CPU Usage: {current_item.details['cpu']}%")
+        self.ram_label.config(text=f"RAM Usage: {current_item.details['ramPercentage']}% - {current_item.details['ramUsed']}GB/{current_item.details['ramTotal']}GB")
+        self.disk_label['text'] = f"Disk: {current_item.details['diskUsed']}GB/{current_item.details['diskTotal']}GB ({current_item.details['diskPercentage']}%)"
 
     def on_select(self, event):
         item = self.tree.selection()
         if item:
-            selected = self.tree.item(item[0], 'values')[0]
-            self.current_item = self.items.get(item[0])
-            self.details_label.config(text=selected)
+            current_item = self.items.get(item[0])
+            self.current_item = current_item
+            self.update_details()
             self.right_frame.grid()
             self.main_frame.grid_columnconfigure(1, weight=1)
         else:

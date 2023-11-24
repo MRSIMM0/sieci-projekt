@@ -14,15 +14,17 @@ class ClientThread(threading.Thread):
 
     def run(self):
         print("Connection from : ", self.client_address)
-
-        while True:
-            data = self.csocket.recv(2048)
-            if not data:
-                self.disconnect()
-                break
-
-            self.details = json.loads(data.decode('utf-8'))
-            self.add_conn(self)
+        try:
+            while True:
+                data = self.csocket.recv(2048)
+                if not data:
+                    self.disconnect()
+                    break
+                print("from connected user: ", data)
+                self.details = json.loads(data.decode('utf-8'))
+                self.add_conn(self)
+        except Exception as e:
+            self.disconnect()
 
     def send_message(self, message):
         self.csocket.send(bytes(message, 'UTF-8'))
@@ -41,7 +43,7 @@ class Server():
     def start_server(self):
         server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        server.bind(("localhost", 8080))
+        server.bind(("192.168.1.19", 8080))
         print("Server started")
         print("Waiting for client request..")
         while True:
