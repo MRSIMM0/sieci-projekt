@@ -7,7 +7,7 @@ Serwer z klientem porozumiewają się ze sobą za pomocą protokółu TCP/IP. Se
 
 ## Instalacja
 
-Wymagany jest **python 3.7**. Aby zainstalować wymagane biblioteki należy uruchomić komendę:
+Wymagany jest **python 3.11**. Aby zainstalować wymagane biblioteki należy uruchomić komendę:
 
 ```bash
 pip install -r requirements.txt
