@@ -20,7 +20,7 @@ class Client:
 
     def handle_server_message(self, message):
         if message == "shutdown":
-            self.shutdown()
+            shutdown()
 
     def start_details_thread(self):
         def send_details():
