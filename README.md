@@ -13,13 +13,16 @@ Wymagany jest **python 3.11**. Aby zainstalować wymagane biblioteki należy uru
 pip install -r requirements.txt
 ```
 
-Aby uruchomić serwer lub klient należy wykonać komendę 
+Aby uruchomić serwer lub klient należy wykonać komendę
 
 ```bash
 python main.py
 ```
 
 w folderze server lub klient.
+
+**KLIENT MUSI BYC URUCHOMIONY W TRYBIE URZYWILEJOWANYM**
+
 
 Po uruchomieniu serwera i klienta na liście pojawi się rekord, alby zobaczyć szczegóły należy na niego kliknąć.
 

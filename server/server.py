@@ -1,7 +1,6 @@
 import threading
 import socket
 import json
-import sys
 class ClientThread(threading.Thread):
     def __init__(self, client_address, client_socket,remove_conn, add_conn):
 
@@ -16,17 +15,13 @@ class ClientThread(threading.Thread):
 
     def run(self):
         print("Connection from : ", self.client_address)
-        try:
-            while True:
-                data = self.csocket.recv(2048)
-                if not data:
-                    self.disconnect()
-                    break
-                self.details = json.loads(data.decode('utf-8'))
-                self.add_conn(self)
-        except Exception as e:
-            print('server ' + str(e))
-            # self.disconnect()
+        while True:
+            data = self.csocket.recv(2048)
+            if not data:
+                self.disconnect()
+                break
+            self.details = json.loads(data.decode('utf-8'))
+            self.add_conn(self)
 
     def send_message(self, message):
         self.csocket.send(bytes(message, 'UTF-8'))

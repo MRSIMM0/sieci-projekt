@@ -4,6 +4,7 @@ import sys
 import time
 import threading
 
+from utils import shutdown
 from details import Details
 class Client:
     def __init__(self, address, port):
@@ -11,19 +12,7 @@ class Client:
         self.running = True
         self.address = address
         self.port = port
-        self.details_thread_running = False  # Add this line
-
-
-    def shutdown_computer():
-        if os.name == 'nt':
-            os.system('shutdown /s /t 0')
-        elif os.name == 'posix':
-            if sys.platform == "darwin":
-                os.system('sudo shutdown -h now')
-            else:
-                os.system('sudo shutdown now')
-        else:
-            print('Unsupported operating system.')
+        self.details_thread_running = False
 
     def signal_handler(self, sig, frame):
         self.client_socket.close()
@@ -31,11 +20,11 @@ class Client:
 
     def handle_server_message(self, message):
         if message == "shutdown":
-            self.shutdown_computer()
+            self.shutdown()
 
     def start_details_thread(self):
         def send_details():
-            while self.details_thread_running:  # Modify this line
+            while self.details_thread_running:
                 try:
                     details = Details().getJson()
                     self.client_socket.send(bytes(details, 'UTF-8'))
@@ -44,13 +33,13 @@ class Client:
                     self.stop()
                     break
 
-        self.details_thread_running = True  # Add this line
+        self.details_thread_running = True
         details_thread = threading.Thread(target=send_details, daemon=True)
         details_thread.start()
 
     def stop(self):
         self.running = False
-        self.details_thread_running = False  # Add this line
+        self.details_thread_running = False
         self.client_socket.close()
 
     def start_client(self):
@@ -58,7 +47,7 @@ class Client:
             try:
                 self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 self.client_socket.connect((self.address, self.port))
-                print("Connected to server.")  # Add this line
+                print("Connected to server.")
 
                 break
             except Exception as e:
