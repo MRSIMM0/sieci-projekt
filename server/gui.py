@@ -3,7 +3,6 @@ import tkinter.ttk as ttk
 import customtkinter as ctk
 from tkinter import messagebox
 
-
 class CustomStyle:
     def __init__(self):
         self.style = ttk.Style()
@@ -66,20 +65,24 @@ class GUI:
         self.update_tree_indicator()
         self.right_frame.grid_remove()
         pass
-
-    def create_widgets(self):
-        self.main_frame = tk.Frame(self.root, width=800, height=480)
-        self.main_frame.pack(fill='both', expand=True)
-
+    def tree(self):
         self.tree = ttk.Treeview(self.main_frame, style='Custom.Treeview')
         self.tree['columns'] = ('#1',)
         self.tree['show'] = 'headings'
         self.tree.column('#1', width=100, anchor='center')
         self.tree.grid(row=0, column=0, sticky='nsew')
         self.tree.bind('<<TreeviewSelect>>', self.on_select)
-
+    def tree_indicator(self):
         self.tree_indicator_label = tk.Label(self.main_frame, text="")
         self.tree_indicator_label.grid(row=1, column=0, sticky='w')
+
+    def create_widgets(self):
+        self.main_frame = tk.Frame(self.root, width=800, height=480)
+        self.main_frame.pack(fill='both', expand=True)
+
+        self.tree()
+
+        self.tree_indicator()
 
         self.right_frame()
 
@@ -95,21 +98,24 @@ class GUI:
             self.tree_indicator_label.config(text="")
 
     def add_client(self, client):
-        item = self.clients.get(client.client_address)
-        if item is not None:
-            self.tree.item(item, values=(client.details['name'],))
-            self.update_details()
-        else:
-            item = self.tree.insert('', 'end', values=(client.details['name'],))
-            self.clients[client.client_address] = item
-            self.items[item] = client
-            if len(self.clients) % 2 == 0:
-                self.tree.item(item, tags='even')
+        try:
+            item = self.clients.get(client.client_address)
+            if item is not None:
+                self.tree.item(item, values=(client.details['name'],))
+                self.update_details()
             else:
-                self.tree.item(item, tags='odd')
-            self.tree.tag_configure('even', background='gray47')
-            self.tree.tag_configure('odd', background='gray55')
-        self.update_tree_indicator()
+                item = self.tree.insert('', 'end', values=(client.details['name'],))
+                self.clients[client.client_address] = item
+                self.items[item] = client
+                if len(self.clients) % 2 == 0:
+                    self.tree.item(item, tags='even')
+                else:
+                    self.tree.item(item, tags='odd')
+                self.tree.tag_configure('even', background='gray47')
+                self.tree.tag_configure('odd', background='gray55')
+            self.update_tree_indicator()
+        except Exception as e:
+            pass
 
 
     def remove_client(self, client):

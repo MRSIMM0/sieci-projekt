@@ -1,6 +1,7 @@
 import threading
 import socket
 import json
+import sys
 class ClientThread(threading.Thread):
     def __init__(self, client_address, client_socket,remove_conn, add_conn):
 
@@ -8,8 +9,9 @@ class ClientThread(threading.Thread):
         self.csocket = client_socket
         self.client_address = client_address
         self.remove_conn = remove_conn
-        self.details = None
+        self.details = ""
         self.add_conn = add_conn
+
         print("New connection added: ", self.client_address)
 
     def run(self):
@@ -20,11 +22,11 @@ class ClientThread(threading.Thread):
                 if not data:
                     self.disconnect()
                     break
-                print("from connected user: ", data)
                 self.details = json.loads(data.decode('utf-8'))
                 self.add_conn(self)
         except Exception as e:
-            self.disconnect()
+            print('server ' + str(e))
+            # self.disconnect()
 
     def send_message(self, message):
         self.csocket.send(bytes(message, 'UTF-8'))
@@ -34,20 +36,31 @@ class ClientThread(threading.Thread):
         self.remove_conn(self)
         self.csocket.close()
 
-class Server():
-    def __init__(self, add_conn, remove_conn):
+class Server:
+    def __init__(self, add_conn, remove_conn, address, port):
         self.add_conn = add_conn
         self.remove_conn = remove_conn
-        pass
+        self.server = None
+        self.running = False
+        self.address = address
+        self.port = port
 
     def start_server(self):
-        server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        server.bind(("192.168.1.19", 8080))
+        self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self.server.bind((self.address, self.port))
         print("Server started")
         print("Waiting for client request..")
-        while True:
-            server.listen(1)
-            client_sock, client_addr = server.accept()
+        self.running = True
+        while self.running:
+            self.server.listen(1)
+            try:
+                client_sock, client_addr = self.server.accept()
+            except socket.error:
+                break
             new_thread = ClientThread(client_addr, client_sock, self.remove_conn, self.add_conn)
             new_thread.start()
+
+    def stop_server(self):
+        self.running = False
+        self.server.close()
