@@ -1,7 +1,8 @@
 import signal
 from client import Client
 
-if __name__ == "__main__":
+
+def get_server_details():
     default_address = 'localhost'
     default_port = 8080
 
@@ -12,6 +13,10 @@ if __name__ == "__main__":
     else:
         address = default_address
         port = default_port
+    return address, port
+
+if __name__ == "__main__":
+    address, port = get_server_details()
 
     client = Client(address, port)
     signal.signal(signal.SIGINT, client.signal_handler)
