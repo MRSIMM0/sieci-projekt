@@ -14,7 +14,7 @@ class Client:
         self.port = port
         self.details_thread_running = False
 
-    def signal_handler(self, sig, frame):
+    def signal_handler(self):
         self.client_socket.close()
         sys.exit(0)
 

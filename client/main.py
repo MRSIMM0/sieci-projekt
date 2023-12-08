@@ -7,4 +7,7 @@ if __name__ == "__main__":
 
     client = Client(address, port)
     signal.signal(signal.SIGINT, client.signal_handler)
-    client.start_client()
+    try:
+        client.start_client()
+    except KeyboardInterrupt:
+        client.signal_handler()
