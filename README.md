@@ -6,13 +6,13 @@ Serwer z klientem porozumiewają się ze sobą za pomocą protokołu TCP/IP. Ser
 
 ## Instalacja
 
-Wymagany jest **python 3.11**. Aby zainstalować wymagane biblioteki należy uruchomić komendę:
+Wymagany jest **python 3.11**. Aby zainstalować wymagane biblioteki należy uruchomić komendę w folderze glównym:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-Aby uruchomić serwer lub klient należy wykonać komendę
+Aby uruchomić serwer lub klient należy wykonać komendę:
 
 ```bash
 python main.py
