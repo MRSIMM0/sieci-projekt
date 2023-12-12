@@ -1,4 +1,3 @@
-import signal
 from client import Client
 from utils import get_server_details
 

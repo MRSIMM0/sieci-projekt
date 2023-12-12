@@ -1,15 +1,20 @@
 import os
+import sys
+import subprocess
 
 def shutdown():
+    try:
         if os.name == 'nt':
-            os.system('shutdown /s /t 0')
+            subprocess.call(['shutdown', '/s', '/t', '0'])
         elif os.name == 'posix':
             if sys.platform == "darwin":
-                os.system('sudo shutdown -h now')
+                subprocess.call(['shutdown', '-h', 'now'])
             else:
-                os.system('sudo shutdown now')
+                subprocess.call(['shutdown', 'now'])
         else:
             print('Unsupported operating system.')
+    except Exception as e:
+        print(f"Failed to shutdown: {e}")
 
 def get_server_details():
     default_address = 'localhost'
