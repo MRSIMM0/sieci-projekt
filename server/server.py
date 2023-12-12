@@ -16,12 +16,17 @@ class ClientThread(threading.Thread):
     def run(self):
         print("Connection from : ", self.client_address)
         while True:
-            data = self.csocket.recv(2048)
-            if not data:
+            try:
+                data = self.csocket.recv(2048)
+                if not data:
+                    self.disconnect()
+                    break
+                self.details = json.loads(data.decode('utf-8'))
+                self.add_conn(self)
+            except socket.error:
                 self.disconnect()
+                print("Client at ", self.client_address , " disconnected...")
                 break
-            self.details = json.loads(data.decode('utf-8'))
-            self.add_conn(self)
 
     def send_message(self, message):
         self.csocket.send(bytes(message, 'UTF-8'))

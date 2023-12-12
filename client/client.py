@@ -71,3 +71,6 @@ class Client:
             print("Lost connection to server. Reconnecting...")
             self.stop()
             self.start_client()
+        except KeyboardInterrupt:
+            self.stop()
+            self.signal_handler()
